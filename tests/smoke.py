@@ -120,11 +120,18 @@ def main() -> int:
     # --- Word ----------------------------------------------------------
     print("== Word ==")
     sh("merge_runs", f"{SCRIPTS}/merge_runs.py", "in.docx", "-o", "out.docx")
-    p = sh("office_convert docx->pdf", f"{SCRIPTS}/office_convert.py", "in.docx", "c.pdf")
-    if p.returncode != 0:
-        skipped.append("office_convert/render_check/validate --soffice — нужен LibreOffice")
+
+    # LibreOffice нужен для конвертации и рендера; без него — честный SKIP,
+    # а не красные FAIL.
+    from _common import find_soffice
+    soffice = find_soffice()
+    if not soffice:
+        skipped.append("LibreOffice не найден: office_convert, render_check, "
+                       "validate --soffice")
         print("  SKIP: LibreOffice не найден, конвертация и рендер пропущены")
     else:
+        print(f"  (LibreOffice: {soffice})")
+        sh("office_convert docx->pdf", f"{SCRIPTS}/office_convert.py", "in.docx", "c.pdf")
         sh("office_convert docx->md", f"{SCRIPTS}/office_convert.py", "in.docx", "c.md")
         sh("validate --soffice", f"{SCRIPTS}/validate.py", "in.docx", "--soffice",
            contains="ИТОГ: PASS")

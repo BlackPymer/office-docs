@@ -1,9 +1,11 @@
 #!/bin/sh
 "true" '''\'
 # Python-скрипт: sh-трampoline ниже запускает его нужным интерпретатором.
-# Порядок: .venv рядом со скриптом -> старый пользовательский venv -> python3.
+# Порядок: .venv в корне репозитория -> .venv рядом со скриптом ->
+# старый пользовательский venv -> python3.
 D="$(dirname "$0")"
-for P in "$D/.venv/bin/python" "$HOME/.local/share/office-skills/venv/bin/python"; do
+for P in "$D/../.venv/bin/python" "$D/.venv/bin/python" \
+         "$HOME/.local/share/office-skills/venv/bin/python"; do
   [ -x "$P" ] && exec "$P" "$0" "$@"
 done
 exec python3 "$0" "$@"
