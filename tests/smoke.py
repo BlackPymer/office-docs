@@ -93,12 +93,22 @@ def main() -> int:
     pdf.save("doc.pdf")
     pdf.close()
 
+    # --- LibreOffice: нужен нескольким проверкам, определяем один раз -------
+    from _common import find_soffice
+    soffice = find_soffice()
+    if soffice:
+        print(f"(LibreOffice: {soffice})")
+
     # --- Excel ---------------------------------------------------------
     print("\n== Excel ==")
     sh("xlsx_dump", f"{SCRIPTS}/xlsx_dump.py", "book.xlsx")
     sh("xlsx_dump --formulas", f"{SCRIPTS}/xlsx_dump.py", "book.xlsx",
        "--formulas", contains="=A2+A3")
-    sh("xlsx_recalc", f"{SCRIPTS}/xlsx_recalc.py", "book.xlsx", contains='"total_errors": 0')
+    if soffice:
+        sh("xlsx_recalc", f"{SCRIPTS}/xlsx_recalc.py", "book.xlsx",
+           contains='"total_errors": 0')
+    else:
+        skipped.append("xlsx_recalc — нужен LibreOffice (пересчёт формул)")
 
     # --- PowerPoint ----------------------------------------------------
     print("== PowerPoint ==")
@@ -123,8 +133,6 @@ def main() -> int:
 
     # LibreOffice нужен для конвертации и рендера; без него — честный SKIP,
     # а не красные FAIL.
-    from _common import find_soffice
-    soffice = find_soffice()
     if not soffice:
         skipped.append("LibreOffice не найден: office_convert, render_check, "
                        "validate --soffice")

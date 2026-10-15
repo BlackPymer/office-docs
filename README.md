@@ -31,7 +31,7 @@ PDF (.pdf), плюс конвертация между ними.
 Нужен Python **3.10 или новее**.
 
 ```bash
-git clone <url>
+git clone https://github.com/BlackPymer/office-docs.git
 cd office-docs
 ./install.sh
 ```
