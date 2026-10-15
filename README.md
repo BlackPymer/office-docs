@@ -74,12 +74,14 @@ tests/smoke.py
 Скрипты запускаются напрямую (`scripts/xlsx_dump.py файл.xlsx`) — shebang сам
 находит нужный Python в таком порядке:
 
-1. `.venv/bin/python` рядом со скриптом (создаёт `install.sh`);
-2. `~/.local/share/office-skills/venv/bin/python` (старое место, если уже есть);
-3. `python3` из PATH.
+1. `.venv/bin/python` в корне репозитория (создаёт `install.sh`);
+2. `.venv/bin/python` рядом со скриптом;
+3. `~/.local/share/office-skills/venv/bin/python` (старое место, если уже есть);
+4. `python3` из PATH.
 
-Третий вариант может не сработать, если библиотеки не ставились вообще — тогда
-выполните `./install.sh`.
+Варианты 2–4 — запасные, чтобы скилл работал и там, где `install.sh` ещё не
+запускали. Если ни один не подошёл, будет `ModuleNotFoundError: No module named
+'docx'` — выполните `./install.sh`.
 
 ## LibreOffice
 
