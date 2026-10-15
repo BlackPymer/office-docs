@@ -74,7 +74,7 @@ $SK/scripts/render_check.sh out.docx            # -> out-01.jpg, out-02.jpg, ...
 | Скрипт | Что делает |
 |---|---|
 | `scripts/render_check.sh файл [префикс] [dpi]` | файл → PDF → `префикс-01.jpg…` в текущем каталоге (визуальная проверка) |
-| `scripts/office_convert.py вход выход` | конвертация: pdf↔docx↔pptx↔xlsx, legacy (.doc/.ppt/.xls), html/rtf/txt, docx→md |
+| `scripts/office_convert.py вход выход` | конвертация: всё → .pdf, docx→odt/html/txt/md, pptx→odp/html, xlsx→ods/html, legacy (.doc/.ppt/.xls) → современные. **pdf→docx и кросс-конвертации docx/pptx/xlsx не работают** (нет export filter у LibreOffice) — см. references/legacy.md |
 | `scripts/validate.py файл [--soffice]` | ZIP/XML/ссылки/открываемость; печатает `ИТОГ: PASS/FAIL` |
 | `scripts/merge_runs.py файл.docx [-o out]` | склейка фрагментированных runs (нужно перед find/replace) |
 | `scripts/pptx_outline.py deck.pptx` | текстовая выгрузка всех слайдов и фигур |

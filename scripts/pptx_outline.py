@@ -8,7 +8,7 @@ for P in "$D/.venv/bin/python" "$HOME/.local/share/office-skills/venv/bin/python
 done
 exec python3 "$0" "$@"
 ''' + ''   # конкатенация -> Python не примет трampoline за docstring модуля
-"""Краткая текстовая выгрузка структуры .pptx: по слайдам, с фигурами и текстом.
+DOC = """Краткая текстовая выгрузка структуры .pptx: по слайдам, с фигурами и текстом.
 
 Использование:
     pptx_outline.py <deck.pptx> [--max-chars 400]
@@ -17,8 +17,10 @@ exec python3 "$0" "$@"
 плейсхолдер), их текст, заметки докладчика. Этого обычно хватает, чтобы
 понять содержание и решить, что править, не открывая XML.
 """
+__doc__ = DOC
 
 
+import os
 import sys
 
 from pptx import Presentation
@@ -99,4 +101,11 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    try:
+        sys.exit(main())
+    except BrokenPipeError:
+        # Читатель закрыл пайп (`| head`, `| grep -q`) — это не ошибка.
+        # Гасим traceback и глушим stdout, иначе интерпретатор напечатает
+        # второй traceback уже при завершении.
+        os.dup2(os.open(os.devnull, os.O_WRONLY), sys.stdout.fileno())
+        sys.exit(0)

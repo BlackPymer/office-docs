@@ -8,7 +8,7 @@ for P in "$D/.venv/bin/python" "$HOME/.local/share/office-skills/venv/bin/python
 done
 exec python3 "$0" "$@"
 ''' + ''   # конкатенация -> Python не примет трampoline за docstring модуля
-"""Структурная валидация OOXML-файлов (docx/pptx/xlsx) перед выдачей результата.
+DOC = """Структурная валидация OOXML-файлов (docx/pptx/xlsx) перед выдачей результата.
 
 Использование:
     validate.py <файл> [--soffice] [--original <исходный>]
@@ -25,6 +25,7 @@ exec python3 "$0" "$@"
 
 Exit code 0 = все проверки пройдены.
 """
+__doc__ = DOC
 
 
 import os

@@ -8,7 +8,7 @@ for P in "$D/.venv/bin/python" "$HOME/.local/share/office-skills/venv/bin/python
 done
 exec python3 "$0" "$@"
 ''' + ''   # конкатенация -> Python не примет трampoline за docstring модуля
-"""Пересчёт формул .xlsx через LibreOffice и отчёт об ошибках.
+DOC = """Пересчёт формул .xlsx через LibreOffice и отчёт об ошибках.
 
 Использование:
     xlsx_recalc.py <файл.xlsx> [таймаут_сек]
@@ -25,6 +25,7 @@ exec python3 "$0" "$@"
     проверьте 2-3 ячейки вручную (xlsx_dump.py) перед финальной сдачей;
   - если книга ссылается на внешнюю книгу, пересчёт заменит ссылки на #NAME?.
 """
+__doc__ = DOC
 
 
 import json

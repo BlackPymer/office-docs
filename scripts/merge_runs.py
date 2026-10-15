@@ -8,7 +8,7 @@ for P in "$D/.venv/bin/python" "$HOME/.local/share/office-skills/venv/bin/python
 done
 exec python3 "$0" "$@"
 ''' + ''   # конкатенация -> Python не примет трampoline за docstring модуля
-"""Склейка фрагментированных text-run'ов в .docx — чтобы текст был находим.
+DOC = """Склейка фрагментированных text-run'ов в .docx — чтобы текст был находим.
 
 Word разбивает один видимый абзац на много <w:r> (проверка орфографии,
 revision id, вставки). Фраза «Привет, мир» часто не существует в
@@ -22,6 +22,7 @@ word/document.xml как непрерывная строка, и find/replace м
 
 Без -o перезаписывает файл на месте (сделайте бэкап сами: cp a.docx a.bak.docx).
 """
+__doc__ = DOC
 
 
 import copy

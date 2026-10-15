@@ -15,7 +15,7 @@ PDF (.pdf), плюс конвертация между ними.
 | `SKILL.md` | Инструкция для агента: какой подход выбрать, какие грабли есть |
 | `scripts/validate.py` | Проверка файла: ZIP/XML/ссылки/открываемость. Печатает `ИТОГ: PASS/FAIL` |
 | `scripts/render_check.sh` | Файл → PDF → JPG постранично (визуальная проверка вёрстки) |
-| `scripts/office_convert.py` | Конвертация: pdf↔docx↔pptx↔xlsx, legacy (.doc/.ppt/.xls), html/rtf/txt, docx→md |
+| `scripts/office_convert.py` | Конвертация: всё → .pdf, docx→odt/html/txt/md, pptx→odp/html, xlsx→ods/html, legacy (.doc/.ppt/.xls) → современные. pdf→docx не работает — см. `references/legacy.md` |
 | `scripts/merge_runs.py` | Склейка фрагментированных runs в docx (нужно перед поиском/заменой текста) |
 | `scripts/pptx_outline.py` | Текстовая выгрузка всех слайдов и фигур презентации |
 | `scripts/pptx_dup_slide.py` | Дублирование слайда с правильным bookkeeping'ом |

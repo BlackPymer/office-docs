@@ -8,7 +8,7 @@ for P in "$D/.venv/bin/python" "$HOME/.local/share/office-skills/venv/bin/python
 done
 exec python3 "$0" "$@"
 ''' + ''   # конкатенация -> Python не примет трampoline за docstring модуля
-"""Выгрузка содержимого .xlsx: листы, диапазоны, значения и формулы.
+DOC = """Выгрузка содержимого .xlsx: листы, диапазоны, значения и формулы.
 
 Использование:
     xlsx_dump.py <файл.xlsx> [--sheet ИМЯ] [--formulas] [--max-rows N] [--max-cols N]
@@ -17,8 +17,10 @@ exec python3 "$0" "$@"
 сами формулы. Важно: если файл только что записали openpyxl, значения
 формул отсутствуют (None), пока не выполнен пересчёт — см. xlsx_recalc.py.
 """
+__doc__ = DOC
 
 
+import os
 import sys
 
 from openpyxl import load_workbook
@@ -88,4 +90,9 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    try:
+        sys.exit(main())
+    except BrokenPipeError:
+        # Читатель закрыл пайп (`| head`, `| grep -q`) — это не ошибка.
+        os.dup2(os.open(os.devnull, os.O_WRONLY), sys.stdout.fileno())
+        sys.exit(0)

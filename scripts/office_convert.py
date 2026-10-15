@@ -8,7 +8,7 @@ for P in "$D/.venv/bin/python" "$HOME/.local/share/office-skills/venv/bin/python
 done
 exec python3 "$0" "$@"
 ''' + ''   # конкатенация -> Python не примет трampoline за docstring модуля
-"""Конвертация документов между форматами (в т.ч. legacy .doc/.ppt/.xls).
+DOC = """Конвертация документов между форматами (в т.ч. legacy .doc/.ppt/.xls).
 
 Использование:
     office_convert.py <вход> <выход>
@@ -20,6 +20,7 @@ exec python3 "$0" "$@"
 Всё, что умеет LibreOffice, он и делает; legacy-форматы (doc/ppt/xls) он
 напрямую перегоняет в современные (docx/pptx/xlsx).
 """
+__doc__ = DOC
 
 
 import os

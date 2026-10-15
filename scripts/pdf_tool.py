@@ -8,7 +8,7 @@ for P in "$D/.venv/bin/python" "$HOME/.local/share/office-skills/venv/bin/python
 done
 exec python3 "$0" "$@"
 ''' + ''   # конкатенация -> Python не примет трampoline за docstring модуля
-"""Операции над PDF: чтение, формы, склейка/разделение, замена текста.
+DOC = """Операции над PDF: чтение, формы, склейка/разделение, замена текста.
 
 Использование:
     pdf_tool.py info    <file.pdf>
@@ -29,6 +29,7 @@ exec python3 "$0" "$@"
   - у PyMuPDF лицензия AGPL/коммерческая — для локальных задач это ок,
     для распространения своего продукта проконсультируйтесь.
 """
+__doc__ = DOC
 
 
 import argparse
