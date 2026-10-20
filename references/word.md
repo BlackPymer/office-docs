@@ -19,10 +19,10 @@
 
 ```bash
 pandoc report.docx -t gfm            # в Markdown с таблицами — основной способ
-# быстрый греп без распаковки:
-unzip -p report.docx word/document.xml | grep -o '<w:t[^>]*>[^<]*</w:t>' | head
-# программно:
-~/.local/share/office-skills/venv/bin/python -c "import docx; d=docx.Document('a.docx'); print([p.text for p in d.paragraphs])"
+# быстрый греп без распаковки (unzip на Windows нет — берём часть скриптом):
+$SK/scripts/ooxml_zip.py cat report.docx word/document.xml | grep -o '<w:t[^>]*>[^<]*</w:t>'
+# программно (интерпретатор с библиотеками скилла — на любой платформе):
+$SK/scripts/py.py -c "import docx; d=docx.Document('a.docx'); print([p.text for p in d.paragraphs])"
 ```
 
 `markitdown report.docx` — альтернатива pandoc (тоже даёт Markdown).
@@ -45,19 +45,23 @@ d.save("out.docx")
 - `python-docx` сохраняет всё, что не трогали: картинки, стили, секции, колонтитулы, оглавление.
 - Чего он **не умеет**: создавать сноски, менять разбивку на колонки, править fields (TOC/PAGE) напрямую — для этого XML-уровень.
 
-**2. unzip → правка XML → zip — для всего, что выше python-docx:**
+**2. unpack → правка XML → pack — для всего, что выше python-docx:**
 
 ```bash
+SK=~/.config/opencode/skills/office-docs
 cp in.docx out.docx                       # работаем с копией, cwd = текущий каталог
-rm -rf unpacked && unzip -q out.docx -d unpacked
+$SK/scripts/merge_runs.py out.docx        # склейка фрагментированных runs — см. грабли №1
+$SK/scripts/ooxml_zip.py unpack out.docx unpacked
 find unpacked -type l -delete               # внешние docx могут содержать симлинки — не доверять
 # править unpacked/word/document.xml (НЕ делать pretty-print/переформатирование!)
-~/.config/opencode/skills/office-docs/scripts/merge_runs.py out.docx   # см. ниже — сначала склейка
-(cd unpacked && rm -f ../out.docx && zip -Xqr ../out.docx .)   # zip ИЗНУТРИ unpacked; out.docx окажется в cwd
-~/.config/opencode/skills/office-docs/scripts/validate.py out.docx --soffice
+$SK/scripts/ooxml_zip.py pack unpacked out.docx
+$SK/scripts/validate.py out.docx --soffice
 ```
 
-Почему `rm -f ../out.docx` обязателен: zip дописывает новые записи, но **не удаляет** старые — удалённый вручную кусок останется в архиве.
+Почему не `unzip`/`zip` вручную: `zip` дописывает новые записи, но **не удаляет**
+старые — удалённый вручную кусок останется в архиве. `ooxml_zip.py pack` собирает
+архив с нуля (и сохраняет тип сжатия частей из исходника), а на Windows — это
+вообще единственный доступный способ, там `unzip`/`zip` нет.
 
 **3. Пересборка с нуля** — если вёрстка не важна (письмо, бейдж): скрипт на python-docx быстрее и надёжнее XML-правок.
 
@@ -93,6 +97,6 @@ find unpacked -type l -delete               # внешние docx могут с�
 ```bash
 SK=~/.config/opencode/skills/office-docs
 $SK/scripts/validate.py out.docx --soffice   # ZIP/XML/ссылки/открываемость
-$SK/scripts/render_check.sh out.docx         # -> out-01.jpg, ...
+$SK/scripts/render_check.py out.docx         # -> out-01.jpg, ...
 ```
 Картинки посмотрите через `Read`: таблицы, колонки, разрывы страниц, шрифты. Только после этого «готово».

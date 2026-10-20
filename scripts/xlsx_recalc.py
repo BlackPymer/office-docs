@@ -5,11 +5,24 @@
 # старый пользовательский venv -> python3.
 D="$(dirname "$0")"
 for P in "$D/../.venv/bin/python" "$D/.venv/bin/python" \
-         "$HOME/.local/share/office-skills/venv/bin/python"; do
+         "$D/../.venv/Scripts/python.exe" "$D/.venv/Scripts/python.exe" \
+         "$HOME/.local/share/office-skills/venv/bin/python" \
+         "$HOME/.local/share/office-skills/venv/Scripts/python.exe"; do
   [ -x "$P" ] && exec "$P" "$0" "$@"
 done
 exec python3 "$0" "$@"
 ''' + ''   # конкатенация -> Python не примет трampoline за docstring модуля
+
+
+import os as _os
+import sys as _sys
+
+_sys.dont_write_bytecode = True  # не плодить __pycache__ рядом со скриптами скилла
+_sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__)))
+from _common import ensure_runtime as _ensure_runtime  # noqa: E402
+
+_ensure_runtime(("openpyxl",))  # на Windows shebang не работает: берём Python из venv
+
 DOC = """Пересчёт формул .xlsx через LibreOffice и отчёт об ошибках.
 
 Использование:
@@ -41,7 +54,12 @@ from pathlib import Path
 
 sys.dont_write_bytecode = True  # не плодить __pycache__ рядом со скриптами скилла
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from _common import find_soffice, soffice_env  # noqa: E402
+from _common import (  # noqa: E402
+    find_soffice,
+    no_window_kwargs,
+    soffice_env,
+    user_installation_url,
+)
 
 from openpyxl import load_workbook  # noqa: E402
 
@@ -79,12 +97,13 @@ def main() -> int:
         return 1
 
     with tempfile.TemporaryDirectory(prefix="recalc_profile_") as prof:
-        url = Path(prof).as_uri()
+        url = user_installation_url(prof)  # на Windows путь нужен как file:///C:/...
         # 1) bootstrap профиля, чтобы появились user/basic/Standard
         r = subprocess.run(
             [soffice, "--headless", "--terminate_after_init",
              f"-env:UserInstallation={url}"],
             env=soffice_env(), capture_output=True, text=True, timeout=timeout,
+            **no_window_kwargs(),
         )
         macro_dir = Path(prof) / "user" / "basic" / "Standard"
         if not macro_dir.is_dir():
@@ -101,13 +120,10 @@ def main() -> int:
                str(path)]
         started = time.monotonic()
         try:
-            res = subprocess.run(["timeout", str(timeout)] + cmd,
-                                 env=soffice_env(), capture_output=True, text=True,
-                                 timeout=timeout + 15)
+            # Таймаут средствами Python: утилиты `timeout` на Windows нет.
+            res = subprocess.run(cmd, env=soffice_env(), capture_output=True,
+                                 text=True, timeout=timeout, **no_window_kwargs())
         except subprocess.TimeoutExpired:
-            print(json.dumps({"error": f"LibreOffice завис (> {timeout}s) — формулы НЕ пересчитаны"}))
-            return 1
-        if res.returncode == 124:
             print(json.dumps({"error": f"LibreOffice завис (> {timeout}s) — формулы НЕ пересчитаны"}))
             return 1
         if res.returncode != 0:

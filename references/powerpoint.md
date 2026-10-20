@@ -64,13 +64,15 @@ p.save("out.pptx")
 
 **Ни в коем случае** `text_frame.text = "..."` поверх существующего текста — это сносит все runs в абзаце и обнуляет шрифты/кегль/жирность. Меняйте `run.text`.
 
-**б) unzip → правка `ppt/slides/slideN.xml` → zip** — для структуры: новых текстбоксов, групп, перемещения фигур. Координаты в EMU (914400 = 1 дюйм), отступы/интервалы — в сотых пункта (`spcBef`), размер шрифта — в сотых (`sz="3200"` = 32 пт).
+**б) unpack → правка `ppt/slides/slideN.xml` → pack** — для структуры: новых текстбоксов, групп, перемещения фигур. Координаты в EMU (914400 = 1 дюйм), отступы/интервалы — в сотых пункта (`spcBef`), размер шрифта — в сотых (`sz="3200"` = 32 пт).
 
 ```bash
-rm -rf unpacked && unzip -q deck.pptx -d unpacked    # cwd = текущий каталог
+$SK/scripts/ooxml_zip.py unpack deck.pptx unpacked    # cwd = текущий каталог
 # править unpacked/ppt/slides/slide2.xml
-(cd unpacked && rm -f ../out.pptx && zip -Xqr ../out.pptx .)   # out.pptx окажется в cwd
+$SK/scripts/ooxml_zip.py pack unpacked out.pptx       # архив собирается с нуля
 ```
+`unzip`/`zip` тут не годятся и не нужны: на Windows их нет, а `zip` к тому же
+дописывает записи и оставляет удалённые части в архиве.
 
 **в) Дублирование слайда:**
 
@@ -95,6 +97,6 @@ $SK/scripts/pptx_dup_slide.py deck.pptx --source 2 --after 2 -o out.pptx
 ```bash
 $SK/scripts/validate.py out.pptx --soffice
 $SK/scripts/pptx_outline.py out.pptx          # текстовая сверка состава
-$SK/scripts/render_check.sh out.pptx deck     # -> deck-01.jpg ...
+$SK/scripts/render_check.py out.pptx deck     # -> deck-01.jpg ...
 ```
 Смотрите картинки: не вылезают ли текстовые блоки за край, нет ли наложений, правильные ли макеты у дублей.

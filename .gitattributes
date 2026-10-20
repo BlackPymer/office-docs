@@ -1,0 +1,12 @@
+# Переводы строк в репозитории:
+#   * скрипты скилла — polyglot (sh-трampoline + Python), на Linux/macOS они
+#     запускаются через /bin/sh, поэтому CRLF ломает их выполнение;
+#   * файлы Windows-обвязки (.ps1/.cmd/.bat) должны быть с CRLF.
+* text=auto eol=lf
+*.ps1 text eol=crlf
+*.cmd text eol=crlf
+*.bat text eol=crlf
+
+# Бинарные артефакты скилла: не пытаться «нормализовать».
+*.jpg binary
+*.png binary

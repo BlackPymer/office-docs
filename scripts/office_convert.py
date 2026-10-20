@@ -5,11 +5,24 @@
 # старый пользовательский venv -> python3.
 D="$(dirname "$0")"
 for P in "$D/../.venv/bin/python" "$D/.venv/bin/python" \
-         "$HOME/.local/share/office-skills/venv/bin/python"; do
+         "$D/../.venv/Scripts/python.exe" "$D/.venv/Scripts/python.exe" \
+         "$HOME/.local/share/office-skills/venv/bin/python" \
+         "$HOME/.local/share/office-skills/venv/Scripts/python.exe"; do
   [ -x "$P" ] && exec "$P" "$0" "$@"
 done
 exec python3 "$0" "$@"
 ''' + ''   # конкатенация -> Python не примет трampoline за docstring модуля
+
+
+import os as _os
+import sys as _sys
+
+_sys.dont_write_bytecode = True  # не плодить __pycache__ рядом со скриптами скилла
+_sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__)))
+from _common import ensure_runtime as _ensure_runtime  # noqa: E402
+
+_ensure_runtime(())  # на Windows shebang не работает: берём Python из venv
+
 DOC = """Конвертация документов между форматами (в т.ч. legacy .doc/.ppt/.xls).
 
 Использование:
@@ -34,7 +47,7 @@ from pathlib import Path
 
 sys.dont_write_bytecode = True  # не плодить __pycache__ рядом со скриптами скилла
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from _common import run_soffice  # noqa: E402
+from _common import find_pandoc, run_soffice  # noqa: E402
 
 SOFFICE_EXT = {
     "pdf", "docx", "doc", "pptx", "ppt", "xlsx", "xls",
@@ -66,9 +79,10 @@ def main() -> int:
                 file=sys.stderr,
             )
             return 1
-        pandoc = shutil.which("pandoc") or os.path.expanduser("~/.local/bin/pandoc")
-        if not os.path.exists(pandoc):
-            print("pandoc не найден", file=sys.stderr)
+        pandoc = find_pandoc()
+        if not pandoc:
+            print("pandoc не найден (нужен только для конвертации в .md — см. README.md)",
+                  file=sys.stderr)
             return 1
         r = subprocess.run(
             [pandoc, "-f", "docx", "-t", "gfm", str(src), "-o", str(dst)],

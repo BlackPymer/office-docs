@@ -5,11 +5,24 @@
 # старый пользовательский venv -> python3.
 D="$(dirname "$0")"
 for P in "$D/../.venv/bin/python" "$D/.venv/bin/python" \
-         "$HOME/.local/share/office-skills/venv/bin/python"; do
+         "$D/../.venv/Scripts/python.exe" "$D/.venv/Scripts/python.exe" \
+         "$HOME/.local/share/office-skills/venv/bin/python" \
+         "$HOME/.local/share/office-skills/venv/Scripts/python.exe"; do
   [ -x "$P" ] && exec "$P" "$0" "$@"
 done
 exec python3 "$0" "$@"
 ''' + ''   # конкатенация -> Python не примет трampoline за docstring модуля
+
+
+import os as _os
+import sys as _sys
+
+_sys.dont_write_bytecode = True  # не плодить __pycache__ рядом со скриптами скилла
+_sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__)))
+from _common import ensure_runtime as _ensure_runtime  # noqa: E402
+
+_ensure_runtime(("pptx",))  # на Windows shebang не работает: берём Python из venv
+
 DOC = """Краткая текстовая выгрузка структуры .pptx: по слайдам, с фигурами и текстом.
 
 Использование:
